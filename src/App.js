@@ -101,28 +101,25 @@ function Main({ movies }) {
   const [watched, setWatched] = useState(tempWatchedData);
   return (
     <main className="main">
-      <Box element={<MovieList movies={movies} />} />
-      <Box
-        element={
-          <>
-            <WatchMovieSummary watched={watched} />
-            <WatchMovieList watched={watched} />
-          </>
-        }
-      />
-      {/* <WatchBox /> */}
+      <Box>
+        <MovieList movies={movies} />
+      </Box>
+      <Box>
+        <WatchMovieSummary watched={watched} />
+        <WatchMovieList watched={watched} />
+      </Box>
     </main>
   );
 }
 
-function Box({ element }) {
+function Box({ children }) {
   const [isOpen, setIsOpen] = useState(true);
   return (
     <div className="box">
       <button className="btn-toggle" onClick={() => setIsOpen((open) => !open)}>
         {isOpen ? "–" : "+"}
       </button>
-      {isOpen && element}
+      {isOpen && children}
     </div>
   );
 }
