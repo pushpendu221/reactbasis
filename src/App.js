@@ -54,9 +54,15 @@ const key = "5e917423";
 export default function App() {
   const [movies, setMovies] = useState([]);
   useEffect(function () {
-    fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=matrix`)
-      .then((res) => res.json())
-      .then((data) => setMovies(data.Search));
+    async function getMovies() {
+      const res = await fetch(
+        `http://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=matrix`
+      );
+      const data = await res.json();
+      setMovies(data.Search);
+      console.log(data.Search);
+    }
+    getMovies();
   }, []);
   return (
     <>
