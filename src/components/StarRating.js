@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 const containerStyle = {
   display: "flex",
   allignItem: "center",
@@ -7,11 +8,6 @@ const containerStyle = {
 
 const starContainerStyle = {
   display: "flex",
-};
-
-const textStyle = {
-  lineHeight: "0",
-  margin: "0",
 };
 
 export default function StarRating({
