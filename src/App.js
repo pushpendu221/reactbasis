@@ -53,14 +53,17 @@ const average = (arr) =>
 const key = "5e917423";
 export default function App() {
   const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState(tempWatchedData);
+  const [isLoading, setLoading] = useState(false);
   useEffect(function () {
     async function getMovies() {
+      setLoading(true);
       const res = await fetch(
         `http://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=matrix`
       );
       const data = await res.json();
       setMovies(data.Search);
-      console.log(data.Search);
+      setLoading(false);
     }
     getMovies();
   }, []);
@@ -71,7 +74,13 @@ export default function App() {
         <Search />
         <NumResult movies={movies} />
       </NavBar>
-      <Main movies={movies} />
+      <main className="main">
+        <Box>{isLoading ? <Loading /> : <MovieList movies={movies} />}</Box>
+        <Box>
+          <WatchMovieSummary watched={watched} />
+          <WatchMovieList watched={watched} />
+        </Box>
+      </main>
     </>
   );
 }
@@ -109,19 +118,15 @@ function NavBar({ children }) {
   return <nav className="nav-bar">{children}</nav>;
 }
 
-function Main({ movies }) {
-  const [watched, setWatched] = useState(tempWatchedData);
-  return (
-    <main className="main">
-      <Box>
-        <MovieList movies={movies} />
-      </Box>
-      <Box>
-        <WatchMovieSummary watched={watched} />
-        <WatchMovieList watched={watched} />
-      </Box>
-    </main>
-  );
+// function Main({ movies }) {
+//   const [watched, setWatched] = useState(tempWatchedData);
+//   return (
+
+//   );
+// }
+
+function Loading() {
+  return "Loading....";
 }
 
 function Box({ children }) {
