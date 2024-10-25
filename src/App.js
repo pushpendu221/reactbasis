@@ -53,16 +53,17 @@ const average = (arr) =>
 const key = "5e917423";
 export default function App() {
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [isError, setIsError] = useState("");
-  const [query, setQuery] = useState("test");
-  // const searchKey = "game";
+  const [query, setQuery] = useState("Titanic");
+
   useEffect(
     function () {
       async function getMovies() {
         try {
           setLoading(true);
+          setIsError("");
           const res = await fetch(
             `http://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=${query}`
           );
@@ -70,9 +71,8 @@ export default function App() {
             throw new Error("Something Went Wrong!!");
           }
           const data = await res.json();
-          console.log(data);
+          console.log("data", data);
           if (data.Response === "False") throw new Error("Movie Not Found!");
-
           setMovies(data.Search);
         } catch (err) {
           console.error(err.message);
@@ -80,6 +80,11 @@ export default function App() {
         } finally {
           setLoading(false);
         }
+      }
+      if (query.length < 3) {
+        setMovies([]);
+        setIsError("");
+        return;
       }
       getMovies();
     },
@@ -110,7 +115,7 @@ export default function App() {
 function ErrorMessage({ message }) {
   return (
     <div className="error">
-      <span>Error!!</span>
+      <span>🚫</span>
       {message}
     </div>
   );
@@ -139,7 +144,7 @@ function Logo() {
 function NumResult({ movies }) {
   return (
     <p className="num-results">
-      Found <strong>{movies.length}</strong> results
+      Found <strong>{movies ? movies.length : 0}</strong> results
     </p>
   );
 }
