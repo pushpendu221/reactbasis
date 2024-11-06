@@ -329,6 +329,16 @@ function MovieSelected({
     Genre: genre,
   } = movie;
 
+  useEffect(
+    function () {
+      document.title = `Movie | ${title}`;
+      //cleanup function
+      return function () {
+        document.title = `usePopcorn`;
+      };
+    },
+    [title]
+  );
   function handleAdd() {
     const newWatchedMovie = {
       imdbID: selectedMovie,
