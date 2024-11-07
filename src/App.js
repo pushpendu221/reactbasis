@@ -30,12 +30,14 @@ export default function App() {
   }
   useEffect(
     function () {
+      const controller = new AbortController();
       async function getMovies() {
         try {
           setLoading(true);
           setIsError("");
           const res = await fetch(
-            `http://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=${query}`
+            `http://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=${query}`,
+            { signal: controller.signal }
           );
           if (!res.ok) {
             throw new Error("Something Went Wrong!!");
@@ -45,8 +47,10 @@ export default function App() {
           if (data.Response === "False") throw new Error("Movie Not Found!");
           setMovies(data.Search);
         } catch (err) {
-          console.error(err.message);
-          setIsError(err.message);
+          if (err.name !== "AbortError") {
+            console.log(err.name);
+            setIsError(err.message);
+          }
         } finally {
           setLoading(false);
         }
@@ -57,6 +61,9 @@ export default function App() {
         return;
       }
       getMovies();
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   );
@@ -339,6 +346,19 @@ function MovieSelected({
     },
     [title]
   );
+
+  useEffect(function () {
+    function callback(e) {
+      if (e.code === "Escape") {
+        onCloseMovie();
+        // console.log("Closing");
+      }
+    }
+    document.addEventListener("keydown", callback);
+    return function () {
+      document.removeEventListener("keydown", callback);
+    };
+  });
   function handleAdd() {
     const newWatchedMovie = {
       imdbID: selectedMovie,
