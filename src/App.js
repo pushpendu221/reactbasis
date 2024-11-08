@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import StarRating from "./components/StarRating";
 
 const average = (arr) =>
@@ -11,7 +11,7 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [isError, setIsError] = useState("");
-  const [query, setQuery] = useState("Titanic");
+  const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
 
   function handleSelectedId(id) {
@@ -115,6 +115,23 @@ function ErrorMessage({ message }) {
 }
 
 function Search({ query, setQuery }) {
+  const inputRef = useRef(null);
+
+  useEffect(
+    function () {
+      function callback(e) {
+        if (document.activeElement === inputRef.current) return;
+        if (e.code === "Enter") {
+          inputRef.current.focus();
+          setQuery("");
+        }
+      }
+
+      document.addEventListener("keydown", callback);
+      return () => document.addEventListener("keydown", callback);
+    },
+    [setQuery]
+  );
   return (
     <input
       className="search"
@@ -122,6 +139,7 @@ function Search({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
+      ref={inputRef}
     />
   );
 }
@@ -299,6 +317,8 @@ function MovieSelected({
   const [loading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState("");
 
+  const countRef = useRef(0);
+
   const alreadyWatched = watched
     .map((movie) => movie.imdbID)
     .includes(selectedMovie);
@@ -322,6 +342,16 @@ function MovieSelected({
       getMoviebyID();
     },
     [selectedMovie]
+  );
+
+  useEffect(
+    function () {
+      if (userRating) {
+        console.log(countRef.current);
+        countRef.current++;
+      }
+    },
+    [userRating]
   );
 
   const {
@@ -367,6 +397,7 @@ function MovieSelected({
       imdbRating,
       runtime: Number(runtime.split(" ").at(0)),
       userRating,
+      counterRef: countRef.current,
     };
     handleWatchList(newWatchedMovie);
     onCloseMovie();
