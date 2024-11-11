@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import StarRating from "./components/StarRating";
+import { useMovies } from "./useMovies";
+import { useLocalStorageState } from "./useLocalStorageState";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -7,12 +9,10 @@ const average = (arr) =>
 const key = "5e917423";
 
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setLoading] = useState(false);
-  const [isError, setIsError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+  const { movies, isLoading, isError } = useMovies(query);
+  const [watched, setWatched] = useLocalStorageState([], "watched");
 
   function handleSelectedId(id) {
     setSelectedId((selectedId) => (selectedId === id ? null : id));
@@ -28,45 +28,7 @@ export default function App() {
   function handleDeleteWatchList(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-  useEffect(
-    function () {
-      const controller = new AbortController();
-      async function getMovies() {
-        try {
-          setLoading(true);
-          setIsError("");
-          const res = await fetch(
-            `http://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=${query}`,
-            { signal: controller.signal }
-          );
-          if (!res.ok) {
-            throw new Error("Something Went Wrong!!");
-          }
-          const data = await res.json();
-          //  console.log("data", data);
-          if (data.Response === "False") throw new Error("Movie Not Found!");
-          setMovies(data.Search);
-        } catch (err) {
-          if (err.name !== "AbortError") {
-            console.log(err.name);
-            setIsError(err.message);
-          }
-        } finally {
-          setLoading(false);
-        }
-      }
-      if (query.length < 3) {
-        setMovies([]);
-        setIsError("");
-        return;
-      }
-      getMovies();
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
-  );
+
   return (
     <>
       <NavBar>
